@@ -8,6 +8,7 @@ import {
   TransactionCard,
   TransactionCardProps,
 } from "../../components/TransactionCard";
+import { useAuth } from "../../hooks/auth";
 
 import {
   Container,
@@ -48,6 +49,8 @@ export function Dashboard() {
   const [highlightData, setHighlightData] = useState<HighlightData>(
     {} as HighlightData
   );
+
+  const { signOut, user } = useAuth();
 
   const theme = useTheme();
 
@@ -171,17 +174,17 @@ export function Dashboard() {
               <UserInfo>
                 <Photo
                   source={{
-                    uri: "https://avatars.githubusercontent.com/u/62680019?v=4",
+                    uri: user.photo,
                   }}
                 />
 
                 <User>
                   <UserGreeting>Olá</UserGreeting>
-                  <UserName>André Luiz</UserName>
+                  <UserName>{user.name || null}</UserName>
                 </User>
               </UserInfo>
 
-              <LogoutButton onPress={() => {}}>
+              <LogoutButton onPress={signOut}>
                 <Icon name="power" />
               </LogoutButton>
             </UserWrapper>

@@ -13,12 +13,9 @@ import {
 
 import theme from "./src/global/styles/theme";
 
-import { NavigationContainer } from "@react-navigation/native";
+import { Routes } from "./src/routes";
 
-import { AppRoutes } from "./src/routes/app.routes";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SignIn } from "./src/pages/auth/SignIn";
-import { AuthProvider } from "./src/hooks/auth";
+import { AuthProvider, useAuth } from "./src/hooks/auth";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -27,23 +24,22 @@ export default function App() {
     Poppins_700Bold,
   });
 
-  if (!fontsLoaded) {
+  const { userStorageLoading } = useAuth();
+
+  if (!fontsLoaded || userStorageLoading) {
     return <AppLoading />;
   }
 
   return (
     <ThemeProvider theme={theme}>
-      <NavigationContainer>
-        <AuthProvider>
-          <StatusBar
-            barStyle="light-content"
-            translucent
-            backgroundColor={theme.colors.primary}
-          />
-          {/* <AppRoutes /> */}
-          <SignIn />
-        </AuthProvider>
-      </NavigationContainer>
+      <AuthProvider>
+        <StatusBar
+          barStyle="light-content"
+          translucent
+          backgroundColor={theme.colors.primary}
+        />
+        <Routes />
+      </AuthProvider>
     </ThemeProvider>
   );
 }
