@@ -20,6 +20,7 @@ import { InputForm } from "../../components/Form/InputForm";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "../../hooks/auth";
 
 interface FormData {
   [name: string]: any;
@@ -41,7 +42,9 @@ export function Register() {
   const [transactionType, setTransactionType] = useState("");
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
 
-  const dataKey = "@gofinances:transactions";
+  const { user } = useAuth();
+
+  const dataKey = `@gofinances:transactions_user:${user?.id}`;
 
   const {
     control,

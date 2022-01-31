@@ -8,6 +8,7 @@ import {
   TransactionCard,
   TransactionCardProps,
 } from "../../components/TransactionCard";
+import { useAuth } from "../../hooks/auth";
 
 import {
   Container,
@@ -49,6 +50,8 @@ export function Dashboard() {
     {} as HighlightData
   );
 
+  const { signOut, user } = useAuth();
+
   const theme = useTheme();
 
   function getLastTransactionDate(
@@ -56,15 +59,23 @@ export function Dashboard() {
     type: "positive" | "negative"
   ) {
     if (collection.length < 1) {
-      return "";
+      return 0;
+    }
+
+    const transactionFiltered = collection.filter(
+      (transaction) => transaction.type === type
+    );
+
+    if (transactionFiltered.length < 1) {
+      return false;
     }
 
     const lastTransaction = new Date(
       Math.max.apply(
         Math,
-        collection
-          .filter((transaction) => transaction.type === type)
-          .map((transaction) => new Date(transaction.date).getTime())
+        transactionFiltered.map((transaction) =>
+          new Date(transaction.date).getTime()
+        )
       )
     );
 
@@ -75,7 +86,7 @@ export function Dashboard() {
   }
 
   async function loadTransactions() {
-    const dataKey = "@gofinances:transactions";
+    const dataKey = `@gofinances:transactions_user:${user?.id}`;
     const response = await AsyncStorage.getItem(dataKey);
     const transactions = response ? JSON.parse(response) : [];
 
@@ -127,14 +138,18 @@ export function Dashboard() {
           style: "currency",
           currency: "BRL",
         }),
-        lastTransaction: `Última entrada dia ${lastTransactionEntries}`,
+        lastTransaction: lastTransactionEntries
+          ? `Última entrada dia ${lastTransactionEntries}`
+          : "Não há transações",
       },
       expansive: {
         amount: expensiveTotal.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         }),
-        lastTransaction: `Última saída dia ${lastTransactionExpensive}`,
+        lastTransaction: lastTransactionExpensive
+          ? `Última saída dia ${lastTransactionExpensive}`
+          : "Não há transações",
       },
       total: {
         amount: total.toLocaleString("pt-BR", {
@@ -171,17 +186,17 @@ export function Dashboard() {
               <UserInfo>
                 <Photo
                   source={{
-                    uri: "https://avatars.githubusercontent.com/u/62680019?v=4",
+                    uri: user.photo,
                   }}
                 />
 
                 <User>
                   <UserGreeting>Olá</UserGreeting>
-                  <UserName>André Luiz</UserName>
+                  <UserName>{user.name || null}</UserName>
                 </User>
               </UserInfo>
 
-              <LogoutButton onPress={() => {}}>
+              <LogoutButton onPress={signOut}>
                 <Icon name="power" />
               </LogoutButton>
             </UserWrapper>
